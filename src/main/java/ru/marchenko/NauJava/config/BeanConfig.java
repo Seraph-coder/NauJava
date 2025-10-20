@@ -2,10 +2,8 @@ package ru.marchenko.NauJava.config;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 import ru.marchenko.NauJava.entity.Task;
 
 import java.util.ArrayList;
@@ -36,10 +34,14 @@ public class BeanConfig {
      * @return Список задач (List<Task>).
      */
     @Bean
-    @Scope(value = BeanDefinition.SCOPE_SINGLETON)
     public List<Task> taskContainer() {
         return new ArrayList<>();
     }
+
+    /**
+     * Инициализационный метод, который выводит информацию о приложении
+     * после создания бина BeanConfig.
+     */
     @PostConstruct
     public void init() {
         System.out.println("Application Name: " + appName);

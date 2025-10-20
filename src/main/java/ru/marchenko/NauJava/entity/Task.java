@@ -8,7 +8,7 @@ package ru.marchenko.NauJava.entity;
 public class Task {
     private Long id;
 
-    private  String name;
+    private String name;
 
     private TaskStatus taskStatus = TaskStatus.BACKLOG;
 
@@ -28,7 +28,7 @@ public class Task {
         this.name = name;
     }
 
-    public  TaskStatus getTaskStatus() {
+    public TaskStatus getTaskStatus() {
         return taskStatus;
     }
 

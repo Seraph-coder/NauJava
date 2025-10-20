@@ -4,10 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import ru.marchenko.NauJava.entity.Task;
 import ru.marchenko.NauJava.entity.TaskStatus;
+import ru.marchenko.NauJava.exception.TaskNotFoundException;
 import ru.marchenko.NauJava.service.TaskService;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 /**
     * Класс CommandProcessor отвечает за обработку команд, введенных пользователем
@@ -36,29 +35,33 @@ public class CommandProcessor {
      * @param command Команда, введенная пользователем.
      */
     public void processCommand(String command) {
-        List<String> partsList = getStrings(command);
+        String[] parts = command.trim().split("\\s+");
 
-        if (partsList.isEmpty()) {
+        if (parts.length == 0 || parts[0].isEmpty()) {
             System.out.println("Введите команду.");
             return;
         }
-        String action = partsList.getFirst();
-        String[] parts = partsList.toArray(new String[0]);
+
+        String action = parts[0];
 
         switch (action.toLowerCase()) {
             case "create", "c":
-                if (parts.length != 3) {
-                    System.out.println("Используйте: create (c) <id> <\"name\">");
+                if (parts.length < 3) {
+                    System.out.println("Используйте: create (c) <id> <name>");
                     return;
                 }
                 try {
                     Long createId = Long.parseLong(parts[1]);
 
-                    if (taskService.findById(createId) != null) {
+                    try {
+                        taskService.findById(createId);
                         System.out.println("Задача с таким ID уже существует.");
                         return;
+                    } catch (TaskNotFoundException e) {
+                        // Задача не существует, можно создать
                     }
-                    String createName = parts[2];
+                    String createName = String.join(" ",
+                            Arrays.copyOfRange(parts, 2, parts.length));
 
                     taskService.createTask(createId, createName);
                     System.out.println("Задача создана.");
@@ -76,11 +79,11 @@ public class CommandProcessor {
                 try {
                     Long readId = Long.parseLong(parts[1]);
 
-                    Task task = taskService.findById(readId);
-                    if (task != null) {
+                    try {
+                        Task task = taskService.findById(readId);
                         System.out.println("Задача найдена: " + task.getName()
                                 +" " +task.getTaskStatus());
-                    } else {
+                    } catch (TaskNotFoundException e) {
                         System.out.println("Задача не найдена.");
                     }
                     break;
@@ -90,33 +93,35 @@ public class CommandProcessor {
                 }
 
             case "update", "u":
-                if (parts.length < 3 || parts.length > 4) {
-                    System.out.println("Используйте: update (u) <task id> <\"new name\"> " +
+                if (parts.length < 3) {
+                    System.out.println("Используйте: update (u) <task id> <new name> " +
                             "<task status (опционально)>");
                     return;
                 }
                 try {
                     Long taskId = Long.parseLong(parts[1]);
 
-                    if (taskService.findById(taskId) == null) {
-                        System.out.println("Задача с таким ID не найдена.");
+                    try {
+                        taskService.findById(taskId);
+                    } catch (TaskNotFoundException e) {
+                        System.out.println("Задача не найдена.");
                         return;
                     }
 
-                    String updateName = parts[2];
+                    String updateName;
 
                     TaskStatus taskStatus = taskService.findById(taskId).getTaskStatus();
 
-                    if (parts.length == 4) {
-                        String statusStr = parts[3].toUpperCase();
+                    String lastPart = parts[parts.length - 1].toUpperCase();
                         try {
-                            taskStatus = TaskStatus.valueOf(statusStr);
+                            taskStatus = TaskStatus.valueOf(lastPart);
+                            updateName = String.join(" ",
+                                    Arrays.copyOfRange(parts, 2, parts.length - 1));
+
                         } catch (IllegalArgumentException e) {
-                            System.err.println("Некорректный статус задачи. " +
-                                    "Используйте: BACKLOG, IN_PROGRESS, DONE.");
-                            return;
+                            updateName = String.join(" ",
+                                    Arrays.copyOfRange(parts, 2, parts.length));
                         }
-                    }
                     taskService.updateTask(taskId, updateName, taskStatus);
                     System.out.println("Задача обновлена.");
                     break;
@@ -132,10 +137,7 @@ public class CommandProcessor {
                 }
                 try {
                     Long deleteId = Long.parseLong(parts[1]);
-                    if (taskService.findById(deleteId) == null) {
-                        System.out.println("Задача с таким ID не найдена.");
-                        return;
-                    }
+                    taskService.findById(deleteId);
 
                     taskService.deleteById(deleteId);
                     System.out.println("Задача удалена.");
@@ -143,51 +145,22 @@ public class CommandProcessor {
                 } catch (NumberFormatException e) {
                     System.err.println("ID должен быть числом.");
                     return;
+                } catch (TaskNotFoundException e) {
+                    System.out.println("Задача с таким ID не найдена.");
+                    return;
                 }
 
             default:
                 System.out.println("""
                         Введена неизвестная команда...
                         Доступные команды:
-                        create (c) <id> <"name"> - создать задачу
+                        create (c) <id> <name> - создать задачу
                         read (r) <task id> - прочитать задачу по ID
-                        update (u) <task id> <"new name"> <task status (опционально)>
+                        update (u) <task id> <new name> <task status (опционально)>
                         - обновить имя (и при желании статус) задачи по ID
                         delete (d) <task id> - удалить задачу по ID
                        \s""");
                 break;
         }
-    }
-
-    /**
-     * Разбивает команду на части, учитывая кавычки для имен с пробелами.
-     *
-     * @param command Команда, введенная пользователем.
-     * @return Список частей команды.
-     */
-    private static List<String> getStrings(String command) {
-        List<String> partsList = new ArrayList<>();
-        StringBuilder currentPart = new StringBuilder();
-        boolean inQuotes = false;
-
-        for (int i = 0; i < command.length(); i++) {
-            char c = command.charAt(i);
-
-            if (c == '"') {
-                inQuotes = !inQuotes;
-            } else if (c == ' ' && !inQuotes) {
-                if (!currentPart.isEmpty()) {
-                    partsList.add(currentPart.toString());
-                    currentPart.setLength(0);
-                }
-            } else {
-                currentPart.append(c);
-            }
-        }
-
-        if (!currentPart.isEmpty()) {
-            partsList.add(currentPart.toString());
-        }
-        return partsList;
     }
 }
