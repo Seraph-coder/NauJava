@@ -1,6 +1,5 @@
 package ru.marchenko.NauJava.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,8 +17,11 @@ public class ConsoleIOConfig {
     /**
      * Компонент для обработки команд, введенных пользователем.
      */
-    @Autowired
-    private CommandProcessor commandProcessor;
+    private final CommandProcessor commandProcessor;
+
+    public ConsoleIOConfig(CommandProcessor commandProcessor) {
+        this.commandProcessor = commandProcessor;
+    }
 
     /**
      * Создает и возвращает бин CommandLineRunner, который запускается при старте приложения.

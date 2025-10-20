@@ -1,8 +1,8 @@
 package ru.marchenko.NauJava.repository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.marchenko.NauJava.entity.Task;
+import ru.marchenko.NauJava.exception.TaskNotFoundException;
 
 import java.util.Iterator;
 import java.util.List;
@@ -16,13 +16,6 @@ import java.util.List;
 public class TaskRepository implements  CrudRepository<Task,Long> {
     private final List<Task> taskContainer;
 
-    /**
-     * Конструктор класса TaskRepository, который принимает список задач (taskContainer).
-     * Этот список используется для хранения задач в памяти.
-     *
-     * @param taskContainer Список задач для хранения.
-     */
-    @Autowired
     public TaskRepository(List<Task> taskContainer) {
         this.taskContainer = taskContainer;
     }
@@ -41,16 +34,17 @@ public class TaskRepository implements  CrudRepository<Task,Long> {
      * Читает задачу по ее идентификатору.
      *
      * @param id Идентификатор задачи.
-     * @return Задача с указанным идентификатором, или null, если задача не найдена.
+     * @return Задача с указанным идентификатором.
+     * @throws TaskNotFoundException Если задача с указанным идентификатором не найдена.
      */
     @Override
-    public Task read(Long id) {
+    public Task read(Long id) throws TaskNotFoundException {
         for (Task task : taskContainer) {
             if (task.getId().equals(id)) {
                 return task;
             }
         }
-        return null;
+        throw new TaskNotFoundException(id);
     }
 
     /**
