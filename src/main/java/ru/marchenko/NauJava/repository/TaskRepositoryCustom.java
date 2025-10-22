@@ -1,15 +1,13 @@
 package ru.marchenko.NauJava.repository;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import ru.marchenko.NauJava.entity.Task;
 
 import java.util.List;
 
 /**
- * Репозиторий для управления сущностями Task.
+ * Пользовательский репозиторий для выполнения сложных запросов к сущности User.
  */
-public interface TaskRepository extends CrudRepository<Task, Long> {
+public interface TaskRepositoryCustom {
     /**
      * Находит задачи по названию и описанию.
      */
@@ -18,6 +16,5 @@ public interface TaskRepository extends CrudRepository<Task, Long> {
     /**
      * Выполняет поиск задач по ключевому слову в названии или описании.
      */
-    @Query("SELECT t FROM Task t WHERE t.title LIKE %:keyword% OR t.description LIKE %:keyword%")
     List<Task> searchByKeyword(String keyword);
 }
