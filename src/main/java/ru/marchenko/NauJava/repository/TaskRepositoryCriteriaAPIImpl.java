@@ -11,11 +11,17 @@ import ru.marchenko.NauJava.entity.Task;
 
 import java.util.List;
 
+/**
+ * Реализация пользовательского репозитория для выполнения сложных запросов к сущности Task с использованием Criteria API.
+ */
 @Repository
-public class TaskRepositoryImpl implements TaskRepositoryCustom {
+public class TaskRepositoryCriteriaAPIImpl implements TaskRepositoryCriteriaAPI {
     @PersistenceContext
     private EntityManager entityManager;
 
+    /**
+     * Выполняет поиск задач по названию и описанию.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<Task> findByTitleAndDescription(String title, String description) {
@@ -32,6 +38,9 @@ public class TaskRepositoryImpl implements TaskRepositoryCustom {
         return entityManager.createQuery(query).getResultList();
     }
 
+    /**
+     * Выполняет поиск задач по ключевому слову в названии или описании (регистронезависимо).
+     */
     @Override
     @Transactional(readOnly = true)
     public List<Task> searchByKeyword(String keyword) {
@@ -39,11 +48,11 @@ public class TaskRepositoryImpl implements TaskRepositoryCustom {
         CriteriaQuery<Task> query = cb.createQuery(Task.class);
         Root<Task> root = query.from(Task.class);
 
-        String pattern = "%" + keyword + "%";
+        String pattern = "%" + keyword.toLowerCase() + "%";
         query.select(root)
                 .where(cb.or(
-                        cb.like(root.get("title"), pattern),
-                        cb.like(root.get("description"), pattern)
+                        cb.like(cb.lower(root.get("title")), pattern),
+                        cb.like(cb.lower(root.get("description")), pattern)
                 ));
 
         return entityManager.createQuery(query).getResultList();

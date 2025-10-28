@@ -7,18 +7,18 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 /**
- * Сущность TaskList.
- * Представляет список задач с полями для связанного пользователя, названия,
+ * Сущность Category.
+ * Представляет категорию с полями для связанного пользователя, названия,
  * описания, а также временными метками создания и обновления.
  */
 @Entity
-@Table(name = "task_lists")
-public class TaskList {
+@Table(name = "categories")
+public class Category {
     @Id
     @GeneratedValue
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch =  FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -35,7 +35,7 @@ public class TaskList {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    public TaskList() {
+    public Category() {
     }
 
     public Long getId() {
