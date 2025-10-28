@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import ru.marchenko.NauJava.entity.Category;
 import ru.marchenko.NauJava.entity.Task;
+import ru.marchenko.NauJava.entity.User;
 import ru.marchenko.NauJava.repository.CategoryRepository;
 import ru.marchenko.NauJava.repository.TaskRepository;
 import ru.marchenko.NauJava.repository.TaskRepositoryCriteriaAPI;
@@ -42,28 +44,28 @@ public class RepositoryTests {
         TaskBuilder b1 = new TaskBuilder()
                 .title("Сделать уроки")
                 .description("Математика, русский");
-        var savedUser1 = userRepository.save(b1.getUser());
-        var cat1 = b1.getCategory();
-        cat1.setUser(savedUser1);
-        var savedCat1 = categoryRepository.save(cat1);
+        User savedUser1 = userRepository.save(b1.getUser());
+        Category category = b1.getCategory();
+        category.setUser(savedUser1);
+        Category savedCat1 = categoryRepository.save(category);
         b1.user(savedUser1).category(savedCat1);
         taskRepository.saveAndFlush(b1.build());
 
         TaskBuilder b2 = new TaskBuilder().title("Подготовиться к диктанту")
                 .description("Русский");
-        var savedUser2 = userRepository.save(b2.getUser());
-        var cat2 = b2.getCategory();
-        cat2.setUser(savedUser2);
-        var savedCat2 = categoryRepository.save(cat2);
+        User savedUser2 = userRepository.save(b2.getUser());
+        Category category2 = b2.getCategory();
+        category2.setUser(savedUser2);
+        Category savedCat2 = categoryRepository.save(category2);
         b2.user(savedUser2).category(savedCat2);
         taskRepository.saveAndFlush(b2.build());
 
         TaskBuilder b3 = new TaskBuilder().title("Погулять")
                 .description("С Витей");
-        var savedUser3 = userRepository.save(b3.getUser());
-        var cat3 = b3.getCategory();
-        cat3.setUser(savedUser3);
-        var savedCat3 = categoryRepository.save(cat3);
+        User savedUser3 = userRepository.save(b3.getUser());
+        Category category3 = b3.getCategory();
+        category3.setUser(savedUser3);
+        Category savedCat3 = categoryRepository.save(category3);
         b3.user(savedUser3).category(savedCat3);
         taskRepository.saveAndFlush(b3.build());
     }
