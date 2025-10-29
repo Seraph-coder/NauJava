@@ -2,6 +2,7 @@ package ru.marchenko.NauJava.repository;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import ru.marchenko.NauJava.entity.Task;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 /**
  * Репозиторий для управления сущностями Task.
  */
+@RepositoryRestResource
 public interface TaskRepository extends JpaRepository<Task, Long> {
     /**
      * Выполняет поиск задач по названию и описанию.

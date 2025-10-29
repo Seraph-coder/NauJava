@@ -15,7 +15,8 @@ import java.util.List;
  * Реализация пользовательского репозитория для выполнения сложных запросов к сущности Task с использованием Criteria API.
  */
 @Repository
-public class TaskRepositoryCriteriaAPIImpl implements TaskRepositoryCriteriaAPI {
+@Transactional(readOnly = true)
+public class TaskRepositoryImpl implements TaskRepositoryCustom {
     @PersistenceContext
     private EntityManager entityManager;
 

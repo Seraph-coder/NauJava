@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Пользовательский репозиторий для выполнения сложных запросов к сущности Task.
  */
-public interface TaskRepositoryCriteriaAPI {
+public interface TaskRepositoryCustom {
     /**
      * Выполняет поиск задач по названию и описанию.
      */

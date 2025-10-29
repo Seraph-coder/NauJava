@@ -1,10 +1,12 @@
 package ru.marchenko.NauJava.repository;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import ru.marchenko.NauJava.entity.Category;
 
 /**
- * Репозиторий для управления сущностями TaskList.
+ * Репозиторий для управления сущностями Category.
  */
-public interface CategoryRepository extends CrudRepository<Category,Long> {
+@RepositoryRestResource
+public interface CategoryRepository extends JpaRepository<Category,Long> {
 }

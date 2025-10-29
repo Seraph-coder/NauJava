@@ -9,8 +9,8 @@ import ru.marchenko.NauJava.entity.Task;
 import ru.marchenko.NauJava.entity.User;
 import ru.marchenko.NauJava.repository.CategoryRepository;
 import ru.marchenko.NauJava.repository.TaskRepository;
-import ru.marchenko.NauJava.repository.TaskRepositoryCriteriaAPI;
-import ru.marchenko.NauJava.repository.TaskRepositoryCriteriaAPIImpl;
+import ru.marchenko.NauJava.repository.TaskRepositoryCustom;
+import ru.marchenko.NauJava.repository.TaskRepositoryImpl;
 import ru.marchenko.NauJava.repository.UserRepository;
 import ru.marchenko.NauJava.testutil.TaskBuilder;
 
@@ -22,14 +22,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Тесты для репозиториев TaskRepository и TaskRepositoryCriteriaAPI.
  */
 @DataJpaTest
-@Import(TaskRepositoryCriteriaAPIImpl.class)
+@Import(TaskRepositoryImpl.class)
 public class RepositoryTests {
 
     @Autowired
     private TaskRepository taskRepository;
 
     @Autowired
-    private TaskRepositoryCriteriaAPI taskRepositoryCriteriaAPI;
+    private TaskRepositoryCustom taskRepositoryCustom;
 
     @Autowired
     private UserRepository userRepository;
@@ -122,7 +122,7 @@ public class RepositoryTests {
     @Test
     void criteria_foundTaskByTitleAndDescription() {
         createAndSaveTasks();
-        List<Task> found = taskRepositoryCriteriaAPI.findByTitleAndDescription("Сделать уроки", "Математика, русский");
+        List<Task> found = taskRepositoryCustom.findByTitleAndDescription("Сделать уроки", "Математика, русский");
         assertEquals(1, found.size());
         assertEquals("Сделать уроки", found.get(0).getTitle());
         assertEquals("Математика, русский", found.get(0).getDescription());
@@ -134,7 +134,7 @@ public class RepositoryTests {
     @Test
     void criteria_shouldNotFindTaskByTitleAndDescription() {
         createAndSaveTasks();
-        List<Task> found = taskRepositoryCriteriaAPI.findByTitleAndDescription("Поиграть в компьютер", "Deadlock");
+        List<Task> found = taskRepositoryCustom.findByTitleAndDescription("Поиграть в компьютер", "Deadlock");
         assertEquals(0, found.size());
     }
 
@@ -144,7 +144,7 @@ public class RepositoryTests {
     @Test
     void criteria_searchTasksByKeyword() {
         createAndSaveTasks();
-        List<Task> found = taskRepositoryCriteriaAPI.searchByKeyword("русский");
+        List<Task> found = taskRepositoryCustom.searchByKeyword("русский");
         assertEquals(2, found.size());
     }
 
@@ -154,7 +154,7 @@ public class RepositoryTests {
     @Test
     void criteria_shouldNotFindTasksByKeyword() {
         createAndSaveTasks();
-        List<Task> found = taskRepositoryCriteriaAPI.searchByKeyword("собака");
+        List<Task> found = taskRepositoryCustom.searchByKeyword("собака");
         assertEquals(0, found.size());
     }
 }
