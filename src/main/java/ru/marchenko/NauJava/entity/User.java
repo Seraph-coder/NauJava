@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 /**
  * Сущность User.
  * Представляет пользователя с полями для имени пользователя, электронной почты,
- * хэша пароля, а также временными метками создания и обновления.
+ * пароля, роли, а также временными метками создания и обновления.
  */
 @Entity
 @Table(name = "users")
@@ -19,13 +19,17 @@ public class User {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String userName;
+    private String username;
 
     @Column(nullable = false, unique = true)
     private  String email;
 
     @Column(nullable = false)
-    private String passwordHash;
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private RoleEnum role = RoleEnum.USER;
 
     @CreationTimestamp
     @Column(updatable = false)
@@ -45,12 +49,12 @@ public class User {
         this.id = id;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
@@ -61,12 +65,20 @@ public class User {
         this.email = email;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public RoleEnum getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = RoleEnum.valueOf(role);
     }
 
     public LocalDateTime getCreatedAt() {

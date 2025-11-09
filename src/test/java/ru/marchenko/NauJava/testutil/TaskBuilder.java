@@ -35,9 +35,9 @@ public class TaskBuilder {
      */
     private User createSimpleUser(String uniq) {
         User u = new User();
-        u.setUserName("testuser_" + uniq);
+        u.setUsername("testuser_" + uniq);
         u.setEmail("testuser_" + uniq + "@example.com");
-        u.setPasswordHash("pass" + uniq);
+        u.setPassword("pass" + uniq);
         return u;
     }
 
