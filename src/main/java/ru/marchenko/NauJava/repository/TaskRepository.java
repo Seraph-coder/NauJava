@@ -1,81 +1,25 @@
 package ru.marchenko.NauJava.repository;
 
-import org.springframework.stereotype.Component;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import ru.marchenko.NauJava.entity.Task;
-import ru.marchenko.NauJava.exception.TaskNotFoundException;
 
-import java.util.Iterator;
 import java.util.List;
 
 /**
- * Репозиторий для управления задачами (Task).
- * Реализует интерфейс CrudRepository для выполнения операций создания,
- * чтения, обновления и удаления задач.
+ * Репозиторий для управления сущностями Task.
  */
-@Component
-public class TaskRepository implements  CrudRepository<Task,Long> {
-    private final List<Task> taskContainer;
-
-    public TaskRepository(List<Task> taskContainer) {
-        this.taskContainer = taskContainer;
-    }
+@RepositoryRestResource
+public interface TaskRepository extends JpaRepository<Task, Long> {
+    /**
+     * Выполняет поиск задач по названию и описанию.
+     */
+    List<Task> findByTitleAndDescription(String title, String description);
 
     /**
-     * Создает новую задачу и добавляет ее в контейнер задач.
-     *
-     * @param entity Задача для создания.
+     * Выполняет поиск задач по ключевому слову в названии или описании (регистронезависимо).
      */
-    @Override
-    public void create(Task entity) {
-        taskContainer.add(entity);
-    }
-
-    /**
-     * Читает задачу по ее идентификатору.
-     *
-     * @param id Идентификатор задачи.
-     * @return Задача с указанным идентификатором.
-     * @throws TaskNotFoundException Если задача с указанным идентификатором не найдена.
-     */
-    @Override
-    public Task read(Long id) throws TaskNotFoundException {
-        for (Task task : taskContainer) {
-            if (task.getId().equals(id)) {
-                return task;
-            }
-        }
-        throw new TaskNotFoundException(id);
-    }
-
-    /**
-     * Обновляет существующую задачу в контейнере задач.
-     *
-     * @param entity Задача с обновленными данными.
-     */
-    @Override
-    public void update(Task entity) {
-        for (int i = 0; i < taskContainer.size(); i++) {
-            if (taskContainer.get(i).getId().equals(entity.getId())) {
-                taskContainer.set(i, entity);
-                return;
-            }
-        }
-    }
-
-    /**
-     * Удаляет задачу по ее идентификатору.
-     *
-     * @param id Идентификатор задачи для удаления.
-     */
-    @Override
-    public void delete(Long id) {
-        Iterator<Task> iterator = taskContainer.iterator();
-        while (iterator.hasNext()) {
-            Task task = iterator.next();
-            if (task.getId().equals(id)) {
-                iterator.remove();
-                return;
-            }
-        }
-    }
+    @Query("SELECT DISTINCT t FROM Task t LEFT JOIN FETCH t.category LEFT JOIN FETCH t.user WHERE LOWER(t.title) LIKE CONCAT('%', LOWER(:keyword), '%') OR LOWER(t.description) LIKE CONCAT('%', LOWER(:keyword), '%')")
+    List<Task> searchByKeyword(String keyword);
 }
