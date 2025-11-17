@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Отчёт</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <style>
+        :root {
+            --bg: #f6f8fa;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626
+        }
+
+        body {
+            font-family: Inter, Roboto, Arial, sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding: 24px;
+            color: #0f172a
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(12, 16, 20, 0.06);
+            padding: 18px
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px
+        }
+
+        h1 {
+            font-size: 20px;
+            margin: 0
+        }
+
+        .meta {
+            display: flex;
+            gap: 12px;
+            align-items: center
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px
+        }
+
+        button.primary {
+            background: var(--accent);
+            color: #fff;
+            border: 0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer
+        }
+
+        button.ghost {
+            background: transparent;
+            border: 1px solid #e6e9ef;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns:repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 12px
+        }
+
+        .stat {
+            background: linear-gradient(180deg, #fff, #fbfdff);
+            border: 1px solid #eef2ff;
+            padding: 12px;
+            border-radius: 10px
+        }
+
+        .stat .num {
+            font-size: 20px;
+            font-weight: 700
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #f1f5f9;
+            text-align: left
+        }
+
+        th {
+            font-weight: 700;
+            background: #fbfdff
+        }
+
+        .muted {
+            color: var(--muted)
+        }
+
+        @media (max-width: 800px) {
+            .summary {
+                grid-template-columns:repeat(2, 1fr)
+            }
+        }
+
+        @media (max-width: 480px) {
+            .summary {
+                grid-template-columns:1fr
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card" th:attr="data-id=${report != null ? report.id : 0}">
+        <header>
+            <div>
+                <h1>Отчёт <span th:text="${report != null ? report.id : ''}"></span></h1>
+            </div>
+            <div class="meta">
+                <div id="statusBadge" th:if="${report != null}"
+                     th:class="${'badge ' + report.status.name().toLowerCase()}" th:text="${report.status}"></div>
+                <div class="controls">
+                    <form th:action="@{/reports/create}" method="post" style="display:inline">
+                        <button class="primary" type="submit">Сформировать новый отчёт</button>
+                    </form>
+                    <button id="refreshBtn" class="ghost" type="button">Обновить</button>
+                </div>
+            </div>
+        </header>
+
+        <div th:if="${report} == null" class="muted">Отчёт не найден.</div>
+
+        <div th:if="${report} != null">
+            <div class="summary">
+                <div class="stat">
+                    <div class="muted">Пользователей</div>
+                    <div class="num" th:text="${report.usersCount}">--</div>
+                    <div class="muted small" th:text="${report.usersTimeMs} + ' ms'">время: -- ms</div>
+                </div>
+                <div class="stat">
+                    <div class="muted">Задач</div>
+                    <div class="num" th:text="${report.tasksCount}">--</div>
+                    <div class="muted small" th:text="${report.tasksTimeMs} + ' ms'">время: -- ms</div>
+                </div>
+                <div class="stat">
+                    <div class="muted">Общее время</div>
+                    <div class="num" th:text="${report.totalTimeMs} + ' ms'">-- ms</div>
+                </div>
+                <div class="stat">
+                    <div class="muted">Статус</div>
+                    <div class="num" id="statusText" th:text="${report.status}">--</div>
+                </div>
+            </div>
+
+            <div id="reportBody" style="margin-top:16px">
+                <div th:if="${report.status.name()} == 'CREATED'">
+                    <p class="muted">Отчёт формируется, подождите немного или нажмите Обновить.</p>
+                </div>
+                <div th:if="${report.status.name()} == 'FAILED'">
+                    <h3>Ошибка при формировании отчёта</h3>
+                    <pre th:text="${report.content}"></pre>
+                </div>
+                <div th:if="${report.status.name()} == 'COMPLETED'">
+                    <h3>Список задач</h3>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Заголовок</th>
+                            <th>Пользователь</th>
+                            <th>Статус</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="t : ${tasks}">
+                            <td th:text="${t.id}">1</td>
+                            <td th:text="${t.title}">Title</td>
+                            <td th:text="${t.user != null ? t.user.username : ''}">user</td>
+                            <td th:text="${t.completed ? 'Завершена' : 'Открыта'}">status</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        const container = document.querySelector('.card');
+        const id = container ? parseInt(container.getAttribute('data-id')) : 0;
+        const refreshBtn = document.getElementById('refreshBtn');
+
+        async function fetchStatus() {
+            if (!id) return;
+            try {
+                const res = await fetch('/reports/' + id + '/status');
+                if (!res.ok) return;
+                const json = await res.json();
+                const status = json.status;
+                const statusTextEl = document.getElementById('statusText');
+                if (statusTextEl) statusTextEl.textContent = status;
+                const badge = document.getElementById('statusBadge');
+                if (badge) badge.className = 'badge ' + status.toLowerCase();
+
+                if (status === 'COMPLETED' || status === 'FAILED') {
+                    window.location.reload();
+                }
+            } catch (e) {
+                console.error(e)
+            }
+        }
+
+        refreshBtn && refreshBtn.addEventListener('click', fetchStatus);
+        if (id) {
+            const interval = setInterval(fetchStatus, 4000);
+            window.addEventListener('beforeunload', () => clearInterval(interval));
+        }
+    })();
+</script>
+</body>
+</html>
