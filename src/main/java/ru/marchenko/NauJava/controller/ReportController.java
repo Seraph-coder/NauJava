@@ -145,4 +145,14 @@ public class ReportController {
         Optional<Report> opt = reportService.findById(id);
         return opt.map(report -> ResponseEntity.ok(Map.of("status", report.getStatus().name()))).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("status", "NOT_FOUND")));
     }
+
+    /**
+     * Возвращает JSON с содержимым отчёта. Используется для получения содержимого отчёта в формате JSON.
+     */
+    @GetMapping("/{id:\\d+}/content")
+    @ResponseBody
+    public ResponseEntity<Report> getReportContent(@PathVariable Long id) {
+        Optional<Report> opt = reportService.findById(id);
+        return opt.map(report -> ResponseEntity.ok(report)).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
 }

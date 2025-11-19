@@ -81,7 +81,7 @@ public class ReportService {
      * Генерирует отчёт: собирает метрики и список задач.
      * В базе сохраняются только метрики; HTML для отображения формируется в шаблоне Thymeleaf.
      */
-    private Report generateReportWithThreads(Long reportId) {
+    Report generateReportWithThreads(Long reportId) {
         long totalStart = System.currentTimeMillis();
         Report report = reportRepository
                 .findById(reportId)

@@ -32,6 +32,8 @@
         <commons-lang3.version>3.19.0</commons-lang3.version>
         <springdoc-openapi.version>2.8.13</springdoc-openapi.version>
         <logback.version>1.5.20</logback.version>
+        <selenium.version>4.38.0</selenium.version>
+        <webdrivermanager.version>6.3.3</webdrivermanager.version>
     </properties>
     <dependencies>
         <!-- Spring Boot Starters -->
@@ -99,6 +101,20 @@
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
+
+        <!-- Other test dependencies -->
+
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.bonigarcia</groupId>
+            <artifactId>webdrivermanager</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -119,6 +135,20 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-java</artifactId>
+                <scope>test</scope>
+                <version>${selenium.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.github.bonigarcia</groupId>
+                <artifactId>webdrivermanager</artifactId>
+                <scope>test</scope>
+                <version>${webdrivermanager.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
